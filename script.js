@@ -25,6 +25,20 @@ function validateLicense(providedKey=null){
     });
 }
 
+// License prompt on page load
+window.onload = function() {
+    let savedKey = localStorage.getItem("licenseKey");
+    if(!savedKey){
+        let key = prompt("Enter your license key:");
+        if(key){
+            localStorage.setItem("licenseKey", key);
+            validateLicense(key);
+        }
+    } else {
+        validateLicense(savedKey);
+    }
+}
+
 function addItem(){
     let name = document.getElementById("itemName").value || "-";
     let qty = parseFloat(document.getElementById("quantity").value) || 0;
@@ -85,4 +99,5 @@ function downloadInvoice(){
     doc.text(`Grand Total: ₹${grandTotal.toFixed(2)}`, 10, y+10);
     doc.save("Invoice.pdf");
 }
+
 
