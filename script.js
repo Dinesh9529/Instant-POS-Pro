@@ -1,3 +1,6 @@
+// Render server URL
+const RENDER_URL = "https://instant-pos-pro.onrender.com";
+
 // License validation (hidden prompt version)
 window.onload = function() {
     let savedKey = localStorage.getItem("licenseKey");
@@ -12,14 +15,22 @@ window.onload = function() {
     }
 }
 
-function validateLicense(inputKey){
+async function validateLicense(inputKey){
     const key = inputKey || document.getElementById("licenseKey").value;
-    if(key === "9529561113@Dkc"){
-        document.getElementById("license-section").style.display = "none";
-        document.getElementById("pos-section").style.display = "block";
-        localStorage.setItem("licenseKey", key);
-    } else {
-        document.getElementById("license-msg").innerText = "Invalid License Key!";
+    try {
+        // Call Render backend to validate key
+        const response = await fetch(`${RENDER_URL}/validate-key?key=${encodeURIComponent(key)}`);
+        const data = await response.json();
+        if(data.valid){
+            document.getElementById("license-section").style.display = "none";
+            document.getElementById("pos-section").style.display = "block";
+            localStorage.setItem("licenseKey", key);
+        } else {
+            document.getElementById("license-msg").innerText = "Invalid License Key!";
+        }
+    } catch(err){
+        console.error("License validation error:", err);
+        document.getElementById("license-msg").innerText = "Server error! Try again.";
     }
 }
 
