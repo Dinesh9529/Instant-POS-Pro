@@ -4,73 +4,88 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Instant POS Pro</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="bg-light">
+<div class="container my-4">
+  <h1 class="text-center mb-4">Instant POS Pro</h1>
 
-<div id="license-screen">
-  <h2>🔑 Enter License Key</h2>
-  <input type="password" id="licenseKey" placeholder="Enter License Key">
-  <button onclick="checkLicense()">Unlock</button>
-  <p id="license-msg"></p>
+  <!-- License Key Section -->
+  <div id="license-section" class="mb-4">
+    <label for="licenseKey" class="form-label">Enter License Key:</label>
+    <input type="text" id="licenseKey" class="form-control mb-2">
+    <button class="btn btn-primary" onclick="validateLicense()">Activate</button>
+    <div id="license-msg" class="mt-2 text-danger"></div>
+  </div>
+
+  <!-- POS Section -->
+  <div id="pos-section" style="display:none;">
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <input type="text" id="itemName" class="form-control" placeholder="Item Name">
+      </div>
+      <div class="col-md-2">
+        <input type="number" id="quantity" class="form-control" placeholder="Quantity">
+      </div>
+      <div class="col-md-2">
+        <input type="number" id="price" class="form-control" placeholder="Price">
+      </div>
+      <div class="col-md-2">
+        <input type="number" id="gst" class="form-control" placeholder="GST %">
+      </div>
+      <div class="col-md-3">
+        <select id="unit" class="form-select">
+          <option value="">Unit (Optional)</option>
+          <option value="Piece">Piece</option>
+          <option value="KG">KG</option>
+          <option value="Liter">Liter</option>
+          <option value="Size">Size</option>
+        </select>
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <select id="shopType" class="form-select">
+          <option value="">Shop Type (Optional)</option>
+          <option value="Clothes">Clothes</option>
+          <option value="Kirana">Kirana</option>
+          <option value="Hotel">Hotel</option>
+          <option value="Tailor">Tailor</option>
+          <option value="Barber">Barber</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <input type="file" id="qrUpload" class="form-control" accept="image/*">
+      </div>
+    </div>
+    <button class="btn btn-success mb-3" onclick="addItem()">Add Item</button>
+
+    <!-- Invoice Table -->
+    <table class="table table-bordered bg-white" id="invoiceTable">
+      <thead class="table-dark">
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>GST %</th>
+          <th>Total</th>
+          <th>Shop Type</th>
+          <th>Unit</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="text-end mb-3">
+      <h5>Total: ₹<span id="total">0.00</span></h5>
+      <h5>Grand Total: ₹<span id="grandTotal">0.00</span></h5>
+      <button class="btn btn-primary" onclick="downloadInvoice()">Download Invoice</button>
+    </div>
+  </div>
 </div>
 
-<div id="pos-app" style="display:none;">
-  <h1 id="shop-title">🛍️ Instant POS Pro</h1>
-
-  <div class="input-group">
-    <label>Shop Name (Optional)</label>
-    <input type="text" id="shopName" placeholder="Enter Shop Name">
-  </div>
-
-  <div class="input-group">
-    <label>Client Name</label>
-    <input type="text" id="clientName" placeholder="Enter Client Name">
-  </div>
-
-  <div class="input-group">
-    <label>Date</label>
-    <input type="date" id="billDate">
-  </div>
-
-  <div class="input-group">
-    <label>Product Name</label>
-    <input type="text" id="productName" placeholder="Product/Service">
-  </div>
-
-  <div class="input-group">
-    <label>Quantity</label>
-    <input type="number" id="quantity" placeholder="Enter Qty">
-    <select id="unit">
-      <option value="">Select Unit</option>
-      <option value="kg">KG</option>
-      <option value="liter">Liter</option>
-      <option value="piece">Piece</option>
-      <option value="size">Size</option>
-    </select>
-  </div>
-
-  <div class="input-group">
-    <label>Price (per unit)</label>
-    <input type="number" id="price" placeholder="Enter Price">
-  </div>
-
-  <div class="input-group">
-    <label>GST (%) (Optional)</label>
-    <input type="number" id="gst" placeholder="Enter GST %">
-  </div>
-
-  <button onclick="addItem()">➕ Add Item</button>
-  <button onclick="generateInvoice()">🧾 Generate Invoice</button>
-
-  <h2>Invoice Preview</h2>
-  <div id="invoice"></div>
-  <button onclick="downloadInvoice()">⬇️ Download Invoice</button>
-
-  <h2>QR Payment</h2>
-  <div id="qrcode"></div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
