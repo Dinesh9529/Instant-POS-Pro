@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instant POS Pro</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="license-screen">
+  <h2>🔑 Enter License Key</h2>
+  <input type="password" id="licenseKey" placeholder="Enter License Key">
+  <button onclick="checkLicense()">Unlock</button>
+  <p id="license-msg"></p>
+</div>
+
+<div id="pos-app" style="display:none;">
+  <h1 id="shop-title">🛍️ Instant POS Pro</h1>
+
+  <div class="input-group">
+    <label>Shop Name (Optional)</label>
+    <input type="text" id="shopName" placeholder="Enter Shop Name">
+  </div>
+
+  <div class="input-group">
+    <label>Client Name</label>
+    <input type="text" id="clientName" placeholder="Enter Client Name">
+  </div>
+
+  <div class="input-group">
+    <label>Date</label>
+    <input type="date" id="billDate">
+  </div>
+
+  <div class="input-group">
+    <label>Product Name</label>
+    <input type="text" id="productName" placeholder="Product/Service">
+  </div>
+
+  <div class="input-group">
+    <label>Quantity</label>
+    <input type="number" id="quantity" placeholder="Enter Qty">
+    <select id="unit">
+      <option value="">Select Unit</option>
+      <option value="kg">KG</option>
+      <option value="liter">Liter</option>
+      <option value="piece">Piece</option>
+      <option value="size">Size</option>
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label>Price (per unit)</label>
+    <input type="number" id="price" placeholder="Enter Price">
+  </div>
+
+  <div class="input-group">
+    <label>GST (%) (Optional)</label>
+    <input type="number" id="gst" placeholder="Enter GST %">
+  </div>
+
+  <button onclick="addItem()">➕ Add Item</button>
+  <button onclick="generateInvoice()">🧾 Generate Invoice</button>
+
+  <h2>Invoice Preview</h2>
+  <div id="invoice"></div>
+  <button onclick="downloadInvoice()">⬇️ Download Invoice</button>
+
+  <h2>QR Payment</h2>
+  <div id="qrcode"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
