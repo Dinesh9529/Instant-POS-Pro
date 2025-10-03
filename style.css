@@ -1,42 +1,175 @@
+/* ====== General Body Styling ====== */
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #f4f6f9;
-  color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f6fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
 }
 
-h1, h2 {
-  text-align: center;
-  color: #444;
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
 }
 
-.input-group {
-  margin: 10px 0;
+/* ====== Container ====== */
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
 }
 
-input, select, button {
-  padding: 8px;
-  margin: 5px 0;
-  width: 100%;
-  border-radius: 8px;
-  border: 1px solid #bbb;
+/* ====== License Section ====== */
+#license-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+#license-section input {
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+#license-section button {
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+#license-msg {
+    font-weight: 500;
+}
+
+/* ====== POS Section ====== */
+#pos-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+#pos-section input, #pos-section select {
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 15px;
+    width: 100%;
+}
+
+#pos-section button {
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 15px;
+}
+
+#pos-section button:hover {
+    opacity: 0.9;
+}
+
+/* ====== Invoice Table Styling ====== */
+#invoiceTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+#invoiceTable th, #invoiceTable td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#invoiceTable th {
+    background-color: #2f3640;
+    color: #fff;
+    font-weight: 600;
+}
+
+#invoiceTable tbody tr:nth-child(even){
+    background-color: #f1f2f6;
+}
+
+#invoiceTable tbody tr:hover {
+    background-color: #dcdde1;
+}
+
+/* ====== Total Section ====== */
+.text-end h5 {
+    font-weight: 600;
+    margin-top: 10px;
+    color: #2f3640;
+}
+
+/* ====== Add Item Row Responsiveness ====== */
+@media (max-width: 768px){
+    #pos-section .row > div {
+        margin-bottom: 10px;
+    }
+}
+
+/* ====== QR Upload Styling ====== */
+#qrUpload {
+    border-radius: 6px;
+    padding: 6px;
+    font-size: 14px;
+}
+
+/* ====== Buttons ====== */
 button {
-  background: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-button:hover {
-  background: #0056b3;
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
-#invoice {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 15px;
-  box-shadow: 0 0 5px #aaa;
+/* ====== Inputs focus ====== */
+input:focus, select:focus {
+    outline: none;
+    border: 2px solid #4cd137;
+    box-shadow: 0 0 5px rgba(76, 209, 55, 0.5);
+}
+
+/* ====== Invoice Download Button ====== */
+button#downloadInvoice {
+    background-color: #4cd137;
+    color: #fff;
+    border: none;
+}
+
+button#downloadInvoice:hover {
+    background-color: #44bd32;
+}
+
+/* ====== Table Scroll on Mobile ====== */
+@media (max-width: 576px){
+    #invoiceTable {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+/* ====== Optional Styling Enhancements ====== */
+select option {
+    font-size: 14px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #718093;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f5f6fa;
 }
