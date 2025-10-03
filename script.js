@@ -3,7 +3,7 @@ let items = [];
 async function checkLicense() {
   let key = document.getElementById("licenseKey").value;
   try {
-    let response = await fetch("https://YOUR_SERVER_URL/validate-key?key=" + key);
+    let response = await fetch(" https://instant-pos-pro.onrender.com/validate-key?key=" + key);
     let data = await response.json();
 
     if (data.valid) {
@@ -81,3 +81,4 @@ function downloadInvoice() {
   link.download = "Invoice.html";
   link.click();
 }
+
