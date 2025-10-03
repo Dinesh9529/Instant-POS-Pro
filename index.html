@@ -1,105 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instant POS Pro</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Instant POS Pro</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { background:#f8f9fa; padding:20px; }
+    .container { max-width: 1100px; background:#fff; padding:25px; border-radius:12px; box-shadow:0 0 12px rgba(0,0,0,0.1); }
+    h2 { text-align:center; margin-bottom:25px; }
+    table th, table td { text-align:center; vertical-align:middle; }
+    #pos-section { display:none; }
+  </style>
 </head>
-<body class="bg-light">
-<div class="container my-4">
-  <h1 class="text-center mb-4">Instant POS Pro</h1>
+<body>
 
-  <!-- License Key Section -->
-  <div id="license-section" class="mb-4">
-    <label for="licenseKey" class="form-label">Enter License Key:</label>
-    <input type="password" id="licenseKey" class="form-control mb-2" placeholder="Enter license key">
-    <button class="btn btn-primary" onclick="validateLicense()">Activate</button>
-    <div id="license-msg" class="mt-2 text-danger"></div>
+<div class="container">
+  <h2>Instant POS Pro</h2>
+
+  <!-- License Section -->
+  <div id="license-section" class="text-center">
+    <p class="text-muted">Please enter your license key to continue</p>
+    <input type="password" id="licenseKey" class="form-control mb-2" placeholder="Enter License Key">
+    <button class="btn btn-primary" onclick="validateLicense()">Validate</button>
+    <p id="license-msg" class="text-danger mt-2"></p>
   </div>
 
   <!-- POS Section -->
-  <div id="pos-section" style="display:none;">
+  <div id="pos-section">
+    <!-- Customer & Shop Name -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <input type="text" id="customerName" class="form-control" placeholder="Customer Name (Optional)">
+      </div>
+      <div class="col-md-6">
+        <input type="text" id="shopName" class="form-control" placeholder="Shop Name (Optional)">
+      </div>
+    </div>
+
     <!-- Item Input Row -->
     <div class="row mb-3">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <input type="text" id="itemName" class="form-control" placeholder="Item Name">
       </div>
-      <div class="col-md-2">
-        <input type="number" id="quantity" class="form-control" placeholder="Quantity">
+      <div class="col-md-1">
+        <input type="number" id="quantity" class="form-control" placeholder="Qty">
       </div>
       <div class="col-md-2">
         <input type="number" id="price" class="form-control" placeholder="Price">
       </div>
-      <div class="col-md-2">
+      <div class="col-md-1">
         <input type="number" id="gst" class="form-control" placeholder="GST %">
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
+        <select id="shopType" class="form-select">
+          <option value="">Select Service</option>
+          <option value="Barber">Barber</option>
+          <option value="Salon">Salon</option>
+          <option value="Grocery">Grocery</option>
+          <option value="Medical">Medical</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Restaurant">Restaurant</option>
+          <option value="Stationery">Stationery</option>
+          <option value="Hardware">Hardware</option>
+          <option value="Mobile Shop">Mobile Shop</option>
+          <option value="Jewellery">Jewellery</option>
+          <option value="Sports">Sports</option>
+        </select>
+      </div>
+      <div class="col-md-2">
         <select id="unit" class="form-select">
-          <option value="">Unit (Optional)</option>
+          <option value="">Unit</option>
           <option value="Piece">Piece</option>
           <option value="KG">KG</option>
           <option value="Liter">Liter</option>
           <option value="Size">Size</option>
         </select>
       </div>
-    </div>
-
-    <!-- Shop Type & QR Upload Row -->
-    <div class="row mb-3">
-      <div class="col-md-6">
-      <select id="shopType" class="form-select">
-  <option value="">Shop Type (Optional)</option>
-  <option value="Barber">Barber</option>
-  <option value="Clothes">Clothes</option>
-  <option value="Computer">Computer</option>
-  <option value="Electronics">Electronics</option>
-  <option value="Grocery">Grocery</option>
-  <option value="Hotel">Hotel</option>
-  <option value="Kirana">Kirana</option>
-  <option value="Medical">Medical</option>
-  <option value="Restaurant">Restaurant</option>
-  <option value="Tailor">Tailor</option>
-  <option value="Tailor">Furniture</option> 
-   <option value="Tailor">Mobile</option>      
-  <option value="Other">Other</option>
-  </select>
-
-      </div>
-      <div class="col-md-6">
-        <input type="file" id="qrUpload" class="form-control" accept="image/*">
+      <div class="col-md-2">
+        <input type="file" id="qrUpload" class="form-control">
       </div>
     </div>
 
-    <button class="btn btn-success mb-3" onclick="addItem()">Add Item</button>
+    <button class="btn btn-success mb-3" onclick="addItem()">➕ Add Item</button>
 
     <!-- Invoice Table -->
-    <table class="table table-bordered bg-white" id="invoiceTable">
-      <thead class="table-dark">
-        <tr>
-          <th>Item</th>
-          <th>Quantity</th>
-          <th>Price</th>
-          <th>GST %</th>
-          <th>Total</th>
-          <th>Shop Type</th>
-          <th>Unit</th>
-          <th>QR</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-bordered" id="invoiceTable">
+        <thead class="table-dark">
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>GST %</th>
+            <th>Total</th>
+            <th>Service</th>
+            <th>Unit</th>
+            <th>QR</th>
+            <th>Customer</th>
+            <th>Shop</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-    <div class="text-end mb-3">
-      <h5>Total: ₹<span id="total">0.00</span></h5>
-      <h5>Grand Total: ₹<span id="grandTotal">0.00</span></h5>
-      <button class="btn btn-primary" onclick="downloadInvoice()">Download Invoice</button>
+    <!-- Totals -->
+    <div class="text-end">
+      <p><b>Total:</b> ₹<span id="total">0.00</span></p>
+      <p><b>Grand Total:</b> ₹<span id="grandTotal">0.00</span></p>
+      <button class="btn btn-primary" onclick="downloadInvoice()">⬇ Download PDF</button>
     </div>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="script.js"></script>
+<script>
+  // License Validation (with Render URL)
+  window.onload = function() {
+    let savedKey = localStorage.getItem("licenseKey");
+    if(savedKey){
+      validateLicense(savedKey);
+    }
+  }
+
+  function validateLicense(inputKey){
+    const key = inputKey || document.getElementById("licenseKey").value;
+
+    fetch("https://instant-pos-pro.onrender.com/validate-key?key=" + key)
+      .then(res => res.json())
+      .then(data => {
+        if(data.valid){
+          document.getElementById("license-section").style.display = "none";
+          document.getElementById("pos-section").style.display = "block";
+          localStorage.setItem("licenseKey", key);
+        } else {
+          document.getElementById("license-msg").innerText = "Invalid License Key!";
+        }
+      })
+      .catch(err => {
+        document.getElementById("license-msg").innerText = "Server Error!";
+      });
+  }
+
+  // Add Item
+  function addItem(){
+    const itemName = document.getElementById("itemName").value;
+    const quantity = parseFloat(document.getElementById("quantity").value) || 0;
+    const price = parseFloat(document.getElementById("price").value) || 0;
+    const gst = parseFloat(document.getElementById("gst").value) || 0;
+    const shopType = document.getElementById("shopType").value;
+    const unit = document.getElementById("unit").value;
+    const customerName = document.getElementById("customerName").value;
+    const shopName = document.getElementById("shopName").value;
+    const qrFile = document.getElementById("qrUpload").files[0];
+
+    if(!itemName){ alert("Enter Item Name"); return; }
+
+    const total = price * quantity * (1 + gst/100);
+
+    const tbody = document.querySelector("#invoiceTable tbody");
+    const tr = document.createElement("tr");
+
+    let qrHTML = qrFile ? `<img src="${URL.createObjectURL(qrFile)}" width="50">` : "";
+
+    tr.innerHTML = `
+      <td>${itemName}</td>
+      <td>${quantity}</td>
+      <td>${price.toFixed(2)}</td>
+      <td>${gst}</td>
+      <td>${total.toFixed(2)}</td>
+      <td>${shopType}</td>
+      <td>${unit}</td>
+      <td>${qrHTML}</td>
+      <td>${customerName}</td>
+      <td>${shopName}</td>
+    `;
+    tbody.appendChild(tr);
+
+    calculateTotals();
+  }
+
+  // Calculate Totals
+  function calculateTotals(){
+    let total = 0;
+    document.querySelectorAll("#invoiceTable tbody tr").forEach(tr => {
+      const rowTotal = parseFloat(tr.cells[4].innerText) || 0;
+      total += rowTotal;
+    });
+    document.getElementById("total").innerText = total.toFixed(2);
+    document.getElementById("grandTotal").innerText = total.toFixed(2);
+  }
+
+  // Download Invoice as PDF
+  function downloadInvoice(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.html(document.getElementById("invoiceTable"), {
+      callback: function(pdf){
+        pdf.save("invoice.pdf");
+      },
+      x:10,
+      y:10
+    });
+  }
+</script>
+
 </body>
 </html>
