@@ -1,211 +1,441 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <title>Instant POS Pro</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    body { background:#f8f9fa; padding:20px; }
-    .container { max-width: 1100px; background:#fff; padding:25px; border-radius:12px; box-shadow:0 0 12px rgba(0,0,0,0.1); }
-    h2 { text-align:center; margin-bottom:25px; }
-    table th, table td { text-align:center; vertical-align:middle; }
-    #pos-section { display:none; }
-  </style>
+    <meta charset="UTF-8">
+    <title>🇮🇳 India's Best Invoice Generator Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            background-color: #e9ecef;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container-fluid {
+            padding: 20px;
+        }
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #0d6efd;
+            color: white;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            padding: 15px;
+        }
+        h2, h5 {
+            font-weight: 600;
+        }
+        /* Invoice Styling */
+        #invoice-preview {
+            background: white;
+            padding: 25px;
+            border: 1px solid #dee2e6;
+            min-height: 80vh;
+            font-size: 14px;
+            color: #333;
+        }
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .shop-details, .invoice-meta {
+            font-size: 13px;
+        }
+        .shop-details h3 {
+            margin: 0;
+            color: #0d6efd;
+            font-weight: 700;
+        }
+        #qr-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border: 1px solid #ccc;
+            padding: 3px;
+        }
+        .customer-details {
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .invoice-table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .invoice-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .invoice-table th, .invoice-table td {
+            padding: 10px;
+            text-align: right;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .invoice-table th:first-child, .invoice-table td:first-child {
+            text-align: left;
+        }
+        .invoice-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 20px;
+        }
+        .totals-table {
+            width: 50%;
+        }
+        .totals-table td {
+            padding: 5px 10px;
+        }
+        .terms {
+            font-size: 12px;
+            color: #777;
+        }
+        #pos-section { display: none; } /* Hidden by default */
+
+        /* Print Specific Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #invoice-preview, #invoice-preview * {
+                visibility: visible;
+            }
+            #invoice-preview {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Instant POS Pro</h2>
-
-  <!-- License Section -->
-  <div id="license-section" class="text-center">
-    <p class="text-muted">Please enter your license key to continue</p>
-    <input type="password" id="licenseKey" class="form-control mb-2" placeholder="Enter License Key">
-    <button class="btn btn-primary" onclick="validateLicense()">Validate</button>
-    <p id="license-msg" class="text-danger mt-2"></p>
-  </div>
-
-  <!-- POS Section -->
-  <div id="pos-section">
-    <!-- Customer & Shop Name -->
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <input type="text" id="customerName" class="form-control" placeholder="Customer Name (Optional)">
-      </div>
-      <div class="col-md-6">
-        <input type="text" id="shopName" class="form-control" placeholder="Shop Name (Optional)">
-      </div>
+<div class="container-fluid">
+    <div id="license-section" class="card shadow-sm mx-auto" style="max-width: 500px;">
+        <div class="card-body p-5 text-center">
+            <h2 class="mb-4">🔑 Instant POS Pro</h2>
+            <p class="text-muted">Please enter your license key to continue</p>
+            <input type="password" id="licenseKey" class="form-control mb-2" placeholder="Enter License Key">
+            <button class="btn btn-primary w-100" onclick="validateLicense()">Validate</button>
+            <p id="license-msg" class="text-danger mt-2"></p>
+        </div>
     </div>
 
-    <!-- Item Input Row -->
-    <div class="row mb-3">
-      <div class="col-md-2">
-        <input type="text" id="itemName" class="form-control" placeholder="Item Name">
-      </div>
-      <div class="col-md-1">
-        <input type="number" id="quantity" class="form-control" placeholder="Qty">
-      </div>
-      <div class="col-md-2">
-        <input type="number" id="price" class="form-control" placeholder="Price">
-      </div>
-      <div class="col-md-1">
-        <input type="number" id="gst" class="form-control" placeholder="GST %">
-      </div>
-      <div class="col-md-2">
-        <select id="shopType" class="form-select">
-          <option value="">Select Service</option>
-          <option value="Barber">Barber</option>
-          <option value="Salon">Salon</option>
-          <option value="Grocery">Grocery</option>
-          <option value="Medical">Medical</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Clothing">Clothing</option>
-          <option value="Restaurant">Restaurant</option>
-          <option value="Stationery">Stationery</option>
-          <option value="Hardware">Hardware</option>
-          <option value="Mobile Shop">Mobile Shop</option>
-          <option value="Jewellery">Jewellery</option>
-          <option value="Sports">Sports</option>
-          <option value="Furniture">Furniture</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <select id="unit" class="form-select">
-          <option value="">Unit</option>
-          <option value="Piece">Piece</option>
-          <option value="KG">KG</option>
-          <option value="Liter">Liter</option>
-          <option value="Size">Size</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <input type="file" id="qrUpload" class="form-control">
-      </div>
-    </div>
+    <div id="pos-section">
+        <div class="row g-4">
+            <div class="col-lg-5 no-print">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📝 Create New Invoice</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3 mb-4">
+                            <h5>🏪 Shop Details</h5>
+                            <div class="col-md-6">
+                                <input type="text" id="shopName" class="form-control" placeholder="Shop Name" onkeyup="updateInvoicePreview()">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" id="shopContact" class="form-control" placeholder="Contact No." onkeyup="updateInvoicePreview()">
+                            </div>
+                            <div class="col-12">
+                                <input type="text" id="shopAddress" class="form-control" placeholder="Shop Address" onkeyup="updateInvoicePreview()">
+                            </div>
+                             <div class="col-md-6">
+                                <input type="text" id="shopGstin" class="form-control" placeholder="GSTIN (Optional)" onkeyup="updateInvoicePreview()">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="qrUpload" class="form-label small">Upload Payment QR</label>
+                                <input type="file" id="qrUpload" class="form-control form-control-sm" accept="image/*">
+                            </div>
+                        </div>
 
-    <button class="btn btn-success mb-3" onclick="addItem()">➕ Add Item</button>
+                        <div class="row g-3 mb-4">
+                             <h5>👤 Customer Details</h5>
+                             <div class="col-md-6">
+                                <input type="text" id="customerName" class="form-control" placeholder="Customer Name" onkeyup="updateInvoicePreview()">
+                            </div>
+                             <div class="col-md-6">
+                                <input type="text" id="customerContact" class="form-control" placeholder="Contact No." onkeyup="updateInvoicePreview()">
+                            </div>
+                            <div class="col-12">
+                               <input type="text" id="customerAddress" class="form-control" placeholder="Customer Address" onkeyup="updateInvoicePreview()">
+                           </div>
+                        </div>
 
-    <!-- Invoice Table -->
-    <div class="table-responsive">
-      <table class="table table-bordered" id="invoiceTable">
-        <thead class="table-dark">
-          <tr>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>GST %</th>
-            <th>Total</th>
-            <th>Service</th>
-            <th>Unit</th>
-            <th>QR</th>
-            <th>Customer</th>
-            <th>Shop</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+                        <h5 class="mb-3">➕ Add Items</h5>
+                        <div class="row g-2 align-items-center" id="item-form">
+                            <div class="col-sm-12 mb-2">
+                                <input type="text" id="itemName" class="form-control" placeholder="Item Name">
+                            </div>
+                            <div class="col-sm-3">
+                                <input type="number" id="quantity" class="form-control" placeholder="Qty">
+                            </div>
+                             <div class="col-sm-4">
+                                <input type="number" id="price" class="form-control" placeholder="Price">
+                            </div>
+                             <div class="col-sm-3">
+                                <input type="number" id="gst" class="form-control" placeholder="GST %">
+                            </div>
+                            <div class="col-sm-2">
+                               <button class="btn btn-success w-100" onclick="addItem()">Add</button>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-primary" onclick="downloadInvoicePDF()">⬇️ Download PDF</button>
+                            <button class="btn btn-info text-white" onclick="printInvoice()">🖨️ Print Invoice</button>
+                            <button class="btn btn-danger" onclick="clearBill()">🗑️ Clear Bill</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Totals -->
-    <div class="text-end">
-      <p><b>Total:</b> ₹<span id="total">0.00</span></p>
-      <p><b>Grand Total:</b> ₹<span id="grandTotal">0.00</span></p>
-      <button class="btn btn-primary" onclick="downloadInvoice()">⬇ Download PDF</button>
+            <div class="col-lg-7">
+                <div id="invoice-preview" class="card">
+                    </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
-  // License Validation (with Render URL)
-  window.onload = function() {
+let items = [];
+const invoicePreview = document.getElementById('invoice-preview');
+const qrUpload = document.getElementById('qrUpload');
+let qrCodeImage = '';
+
+// --- LICENSE VALIDATION ---
+window.onload = function() {
     let savedKey = localStorage.getItem("licenseKey");
-    if(savedKey){
-      validateLicense(savedKey);
+    if (savedKey) {
+        validateLicense(savedKey);
     }
-  }
+    updateInvoicePreview(); // Initial render
+};
 
-  function validateLicense(inputKey){
+function validateLicense(inputKey) {
     const key = inputKey || document.getElementById("licenseKey").value;
+    // For Demo purpose, let's use a simple key. Replace with your fetch logic.
+    if (key === "PRO2025") {
+        document.getElementById("license-section").style.display = "none";
+        document.getElementById("pos-section").style.display = "block";
+        localStorage.setItem("licenseKey", key);
+    } else {
+        document.getElementById("license-msg").innerText = "Invalid License Key!";
+    }
+}
 
-    fetch("https://instant-pos-pro.onrender.com/validate-key?key=" + key)
-      .then(res => res.json())
-      .then(data => {
-        if(data.valid){
-          document.getElementById("license-section").style.display = "none";
-          document.getElementById("pos-section").style.display = "block";
-          localStorage.setItem("licenseKey", key);
-        } else {
-          document.getElementById("license-msg").innerText = "Invalid License Key!";
+// --- QR CODE HANDLING ---
+qrUpload.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            qrCodeImage = e.target.result;
+            updateInvoicePreview();
         }
-      })
-      .catch(err => {
-        document.getElementById("license-msg").innerText = "Server Error!";
-      });
-  }
+        reader.readAsDataURL(file);
+    }
+});
 
-  // Add Item
-  function addItem(){
+
+// --- CORE FUNCTIONS ---
+function addItem() {
     const itemName = document.getElementById("itemName").value;
     const quantity = parseFloat(document.getElementById("quantity").value) || 0;
     const price = parseFloat(document.getElementById("price").value) || 0;
     const gst = parseFloat(document.getElementById("gst").value) || 0;
-    const shopType = document.getElementById("shopType").value;
-    const unit = document.getElementById("unit").value;
-    const customerName = document.getElementById("customerName").value;
-    const shopName = document.getElementById("shopName").value;
-    const qrFile = document.getElementById("qrUpload").files[0];
 
-    if(!itemName){ alert("Enter Item Name"); return; }
+    if (!itemName || quantity <= 0 || price <= 0) {
+        alert("Please enter valid Item Name, Quantity, and Price.");
+        return;
+    }
 
-    const total = price * quantity * (1 + gst/100);
+    const amount = price * quantity;
+    const gstAmount = amount * (gst / 100);
+    const total = amount + gstAmount;
 
-    const tbody = document.querySelector("#invoiceTable tbody");
-    const tr = document.createElement("tr");
+    items.push({ itemName, quantity, price, gst, amount, gstAmount, total });
+    updateInvoicePreview();
+    
+    // Clear input fields
+    document.getElementById("itemName").value = '';
+    document.getElementById("quantity").value = '';
+    document.getElementById("price").value = '';
+    document.getElementById("gst").value = '';
+    document.getElementById("itemName").focus();
+}
 
-    let qrHTML = qrFile ? `<img src="${URL.createObjectURL(qrFile)}" width="50">` : "";
+function deleteItem(index) {
+    items.splice(index, 1);
+    updateInvoicePreview();
+}
 
-    tr.innerHTML = `
-      <td>${itemName}</td>
-      <td>${quantity}</td>
-      <td>${price.toFixed(2)}</td>
-      <td>${gst}</td>
-      <td>${total.toFixed(2)}</td>
-      <td>${shopType}</td>
-      <td>${unit}</td>
-      <td>${qrHTML}</td>
-      <td>${customerName}</td>
-      <td>${shopName}</td>
+function updateInvoicePreview() {
+    // Get all values from input fields
+    const shopName = document.getElementById('shopName').value || 'Your Shop Name';
+    const shopAddress = document.getElementById('shopAddress').value || 'Your Shop Address';
+    const shopContact = document.getElementById('shopContact').value || 'Contact: +91 00000 00000';
+    const shopGstin = document.getElementById('shopGstin').value || 'GSTIN: Not Available';
+    
+    const customerName = document.getElementById('customerName').value || 'Walk-in Customer';
+    const customerAddress = document.getElementById('customerAddress').value || 'N/A';
+    const customerContact = document.getElementById('customerContact').value || '';
+
+    // Calculations
+    let subTotal = 0;
+    let totalCgst = 0;
+    let totalSgst = 0;
+    let grandTotal = 0;
+
+    items.forEach(item => {
+        subTotal += item.amount;
+        // Assuming GST is divided equally into CGST and SGST
+        totalCgst += (item.amount * (item.gst / 2 / 100));
+        totalSgst += (item.amount * (item.gst / 2 / 100));
+    });
+    grandTotal = subTotal + totalCgst + totalSgst;
+
+    // Generate Invoice HTML
+    let itemsHtml = items.map((item, index) => `
+        <tr>
+            <td>${index + 1}. ${item.itemName}</td>
+            <td>${item.quantity}</td>
+            <td>₹${item.price.toFixed(2)}</td>
+            <td>${item.gst}%</td>
+            <td>₹${item.total.toFixed(2)}</td>
+            <td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteItem(${index})">X</button></td>
+        </tr>
+    `).join('');
+
+    invoicePreview.innerHTML = `
+        <div class="invoice-header">
+            <div class="shop-details">
+                <h3>${shopName}</h3>
+                <p>${shopAddress}<br>${shopContact}<br>${shopGstin}</p>
+            </div>
+            <div id="qr-preview">
+                ${qrCodeImage ? `<img src="${qrCodeImage}" alt="QR Code">` : '<span>Upload QR</span>'}
+            </div>
+        </div>
+        
+        <h4 class="text-center bg-light p-2 mb-3">TAX INVOICE</h4>
+
+        <div class="row customer-details">
+            <div class="col-6">
+                <strong>Bill To:</strong><br>
+                ${customerName}<br>
+                ${customerAddress}<br>
+                ${customerContact}
+            </div>
+            <div class="col-6 text-end">
+                <strong>Invoice No:</strong> INV-${Date.now().toString().slice(-6)}<br>
+                <strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}
+            </div>
+        </div>
+
+        <table class="table invoice-table">
+            <thead>
+                <tr>
+                    <th style="width:40%;">Item Description</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>GST%</th>
+                    <th>Total</th>
+                    <th class="no-print">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${itemsHtml || '<tr><td colspan="6" class="text-center">No items added yet.</td></tr>'}
+            </tbody>
+        </table>
+
+        <div class="invoice-footer">
+            <div class="terms">
+                <strong>Terms & Conditions:</strong>
+                <p>1. Goods once sold will not be taken back.<br>2. Thank you for your business!</p>
+            </div>
+            <table class="totals-table">
+                <tr>
+                    <td>Sub Total:</td>
+                    <td>₹${subTotal.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td>CGST:</td>
+                    <td>₹${totalCgst.toFixed(2)}</td>
+                </tr>
+                 <tr>
+                    <td>SGST:</td>
+                    <td>₹${totalSgst.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Grand Total:</strong></td>
+                    <td><strong>₹${grandTotal.toFixed(2)}</strong></td>
+                </tr>
+            </table>
+        </div>
     `;
-    tbody.appendChild(tr);
+}
 
-    calculateTotals();
-  }
+function downloadInvoicePDF() {
+    const invoiceElement = document.getElementById('invoice-preview');
+    
+    html2canvas(invoiceElement, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        
+        // A4 size: 210mm wide, 297mm high
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const ratio = canvasHeight / canvasWidth;
+        
+        const imgWidth = pdfWidth - 20; // with margin
+        const imgHeight = imgWidth * ratio;
 
-  // Calculate Totals
-  function calculateTotals(){
-    let total = 0;
-    document.querySelectorAll("#invoiceTable tbody tr").forEach(tr => {
-      const rowTotal = parseFloat(tr.cells[4].innerText) || 0;
-      total += rowTotal;
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+        pdf.save(`invoice-${Date.now()}.pdf`);
     });
-    document.getElementById("total").innerText = total.toFixed(2);
-    document.getElementById("grandTotal").innerText = total.toFixed(2);
-  }
+}
 
-  // Download Invoice as PDF
-  function downloadInvoice(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.html(document.getElementById("invoiceTable"), {
-      callback: function(pdf){
-        pdf.save("invoice.pdf");
-      },
-      x:10,
-      y:10
-    });
-  }
+function printInvoice() {
+    window.print();
+}
+
+function clearBill() {
+    if (confirm("Are you sure you want to clear everything?")) {
+        items = [];
+        document.getElementById('shopName').value = '';
+        document.getElementById('shopAddress').value = '';
+        document.getElementById('shopContact').value = '';
+        document.getElementById('shopGstin').value = '';
+        document.getElementById('customerName').value = '';
+        document.getElementById('customerAddress').value = '';
+        document.getElementById('customerContact').value = '';
+        qrUpload.value = '';
+        qrCodeImage = '';
+        updateInvoicePreview();
+    }
+}
 </script>
 
 </body>
