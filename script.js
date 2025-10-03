@@ -10,7 +10,7 @@ window.onload = function(){
 
 function validateLicense(providedKey=null){
     let key = providedKey || document.getElementById("licenseKey").value;
-    fetch("https://YOUR_RENDER_URL/validate-key?key=" + key)
+    fetch(" https://instant-pos-pro.onrender.com/validate-key?key=" + key)
     .then(res=>res.json())
     .then(data=>{
         if(data.valid){
@@ -85,3 +85,4 @@ function downloadInvoice(){
     doc.text(`Grand Total: ₹${grandTotal.toFixed(2)}`, 10, y+10);
     doc.save("Invoice.pdf");
 }
+
