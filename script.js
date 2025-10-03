@@ -1,84 +1,87 @@
 let items = [];
+let totalAmount = 0;
+let grandTotal = 0;
 
-async function checkLicense() {
-  let key = document.getElementById("licenseKey").value;
-  try {
-    let response = await fetch(" https://instant-pos-pro.onrender.com/validate-key?key=" + key);
-    let data = await response.json();
-
-    if (data.valid) {
-      document.getElementById("license-screen").style.display = "none";
-      document.getElementById("pos-app").style.display = "block";
-      document.getElementById("billDate").value = new Date().toISOString().split('T')[0];
-    } else {
-      document.getElementById("license-msg").innerText = "? Invalid or Expired License!";
-    }
-  } catch (err) {
-    document.getElementById("license-msg").innerText = "?? Server Error! Check Internet.";
-  }
+// On load, check localStorage
+window.onload = function(){
+    let savedKey = localStorage.getItem("licenseKey");
+    if(savedKey) validateLicense(savedKey);
 }
 
-function addItem() {
-  let product = document.getElementById("productName").value;
-  let qty = document.getElementById("quantity").value;
-  let unit = document.getElementById("unit").value;
-  let price = document.getElementById("price").value;
-  let gst = document.getElementById("gst").value;
-
-  if (product && qty && price) {
-    let total = qty * price;
-    let gstAmount = gst ? (total * gst) / 100 : 0;
-    let grandTotal = total + gstAmount;
-    items.push({ product, qty, unit, price, gstAmount, grandTotal });
-    alert("? Item Added!");
-  } else {
-    alert("?? Please enter Product, Quantity & Price!");
-  }
+function validateLicense(providedKey=null){
+    let key = providedKey || document.getElementById("licenseKey").value;
+    fetch("https://YOUR_RENDER_URL/validate-key?key=" + key)
+    .then(res=>res.json())
+    .then(data=>{
+        if(data.valid){
+            document.getElementById("license-section").style.display="none";
+            document.getElementById("pos-section").style.display="block";
+            localStorage.setItem("licenseKey", key);
+        } else {
+            document.getElementById("license-msg").innerText="Invalid Key!";
+        }
+    }).catch(err=>{
+        document.getElementById("license-msg").innerText="Server error!";
+    });
 }
 
-function generateInvoice() {
-  let shopName = document.getElementById("shopName").value || "Instant POS Pro";
-  let clientName = document.getElementById("clientName").value || "Customer";
-  let date = document.getElementById("billDate").value;
+function addItem(){
+    let name = document.getElementById("itemName").value || "-";
+    let qty = parseFloat(document.getElementById("quantity").value) || 0;
+    let price = parseFloat(document.getElementById("price").value) || 0;
+    let gst = parseFloat(document.getElementById("gst").value) || 0;
+    let unit = document.getElementById("unit").value || "-";
+    let shop = document.getElementById("shopType").value || "-";
 
-  let invoiceHTML = `
-    <div style="font-family:Arial; max-width:800px; margin:auto; border:1px solid #ccc; padding:20px;">
-      <h2 style="text-align:center;">${shopName}</h2>
-      <p><b>Client:</b> ${clientName}</p>
-      <p><b>Date:</b> ${date}</p>
-      <table border="1" width="100%" style="border-collapse:collapse; text-align:center;">
-        <tr style="background:#f0f0f0;"><th>Product</th><th>Qty</th><th>Unit</th><th>Price</th><th>GST</th><th>Total</th></tr>`;
+    let total = price * qty;
+    let totalWithGST = total + (total * gst / 100);
 
-  let finalTotal = 0;
-  items.forEach(item => {
-    invoiceHTML += `<tr>
-      <td>${item.product}</td>
-      <td>${item.qty}</td>
-      <td>${item.unit}</td>
-      <td>?${item.price}</td>
-      <td>?${item.gstAmount.toFixed(2)}</td>
-      <td>?${item.grandTotal.toFixed(2)}</td>
-    </tr>`;
-    finalTotal += item.grandTotal;
-  });
+    totalAmount += total;
+    grandTotal += totalWithGST;
 
-  invoiceHTML += `</table>
-    <h3 style="text-align:right;">Grand Total: ?${finalTotal.toFixed(2)}</h3>
-    <p style="text-align:center;">Scan to Pay</p>
-    <div style="text-align:center;">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=merchant@upi&pn=${shopName}&am=${finalTotal.toFixed(2)}" alt="QR Code">
-    </div>
-    </div>`;
+    items.push({name, qty, price, gst, totalWithGST, unit, shop});
 
-  document.getElementById("invoice").innerHTML = invoiceHTML;
+    updateTable();
+    clearInputs();
 }
 
-function downloadInvoice() {
-  let invoiceContent = document.getElementById("invoice").innerHTML;
-  let blob = new Blob([invoiceContent], { type: "text/html" });
-  let link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "Invoice.html";
-  link.click();
+function updateTable(){
+    let tbody = document.getElementById("invoiceTable").getElementsByTagName('tbody')[0];
+    tbody.innerHTML="";
+    items.forEach(item=>{
+        let row = tbody.insertRow();
+        row.insertCell(0).innerText=item.name;
+        row.insertCell(1).innerText=item.qty;
+        row.insertCell(2).innerText=item.price.toFixed(2);
+        row.insertCell(3).innerText=item.gst.toFixed(2);
+        row.insertCell(4).innerText=item.totalWithGST.toFixed(2);
+        row.insertCell(5).innerText=item.shop;
+        row.insertCell(6).innerText=item.unit;
+    });
+
+    document.getElementById("total").innerText=totalAmount.toFixed(2);
+    document.getElementById("grandTotal").innerText=grandTotal.toFixed(2);
 }
 
+function clearInputs(){
+    document.getElementById("itemName").value="";
+    document.getElementById("quantity").value="";
+    document.getElementById("price").value="";
+    document.getElementById("gst").value="";
+    document.getElementById("unit").value="";
+    document.getElementById("shopType").value="";
+    document.getElementById("qrUpload").value="";
+}
+
+function downloadInvoice(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text("Instant POS Pro Invoice", 10, 10);
+    let y = 20;
+    items.forEach(item=>{
+        doc.text(`${item.name} | ${item.qty} | ₹${item.price.toFixed(2)} | GST: ${item.gst.toFixed(2)} | Total: ₹${item.totalWithGST.toFixed(2)} | ${item.unit} | ${item.shop}`, 10, y);
+        y+=10;
+    });
+    doc.text(`Grand Total: ₹${grandTotal.toFixed(2)}`, 10, y+10);
+    doc.save("Invoice.pdf");
+}
